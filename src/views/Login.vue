@@ -6,7 +6,8 @@
     <el-input v-model="formData.username"></el-input>
   </el-form-item>
   <el-form-item type="password" label="密码">
-    <el-input v-model="formData.password"></el-input>
+    <!-- 添加回车登录功能 -->
+    <el-input @keyup.enter.native = "handleLogin" v-model="formData.password"></el-input>
   </el-form-item>
   <el-form-item>
     <el-button @click ="handleLogin" type="primary"  class = "btn">登录</el-button>
@@ -28,7 +29,7 @@ import axios from 'axios'
      }
  },
  methods:{
-   handleLogin(){
+  /*  handleLogin(){
      axios
       .post('http://localhost:8888/api/private/v1/login',this.formData)
       .then((response)=>{
@@ -53,7 +54,28 @@ import axios from 'axios'
       .catch((err)=>{
         console.log(err);
       })
-   }
+   } */
+ 
+ async handleLogin(){
+   var response = await axios.post('http://localhost:8888/api/private/v1/login',this.formData);
+  //  console.log(response)
+        /*  var status =response.data.meta.status;
+        var msg =response.data.meta.msg; */
+        //解构赋值
+       var {data:{meta:{msg,status}}} = response;
+      //  登录成功返回token,token存储到sessionStorage中
+        if(status ===200){
+        var token = response.data.data.token;
+       this.$message.success(msg)
+        sessionStorage.setItem('token',token); 
+        // 跳转到后台首页
+        this.$router.push('/')
+        //
+        }else{
+          this.$message.error(msg);
+        }
+ }
+ 
  },
    components: {
 
